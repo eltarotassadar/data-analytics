@@ -1,0 +1,18 @@
+-- Задание №1 Воронки
+select tariff,
+       uniqExact(v.idhash_view) as views_count,
+       uniqExact(o.idhash_order) as orders_count,
+       uniqExact(o.da_dttm) as driver_appointed,
+       uniqExact(o.rfc_dttm) as car_served,
+       uniqExact(o.cc_dttm) as client_sat,
+       uniqExact(o.finish_dttm) as cp_trip
+from views v
+    any
+left join orders o on v.idhash_order = o.idhash_order -- вот тут есть сомнения, буду благодарен, если будут комментарии
+group by tariff
+;
+-- теряем, безусловно, больше всего на шаге просмотров[views_count](что логично), далее, поделим столбцы: orders_count/driver_appointed = 1,27;
+-- driver_appointed/car_served = 1,21). Таким образом, топ 2 по потере клиентов - этап заказа такси. Остальные столбцы не делил, потому что
+-- там слишком очевидная небольшая разница.
+
+-- Задание №2 По каждому клиенту выводим топ тарифов по убыванию в массиве и кол-во тарифов, которыми он пользуется
