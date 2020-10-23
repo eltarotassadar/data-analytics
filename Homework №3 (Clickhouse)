@@ -1,4 +1,4 @@
--- Задание №1 Воронки
+# -- Задание №1 Воронки
 select tariff,
        uniqExact(v.idhash_view) as views_count,
        uniqExact(o.idhash_order) as orders_count,
@@ -15,4 +15,36 @@ group by tariff
 -- driver_appointed/car_served = 1,21). Таким образом, топ 2 по потере клиентов - этап заказа такси. Остальные столбцы не делил, потому что
 -- там слишком очевидная небольшая разница.
 
+
 -- Задание №2 По каждому клиенту выводим топ тарифов по убыванию в массиве и кол-во тарифов, которыми он пользуется
+select idhash_client
+     , groupArray(tariff) as tariffs
+     , count(tariff) as tariff_total
+from (select idhash_client
+           , tariff
+, uniqExact(idhash_order) as orders_
+      from views
+               left join orders o on views.idhash_order = o.idhash_order
+      where 1 = 1
+        and idhash_order != 0
+        and status = 'CP'
+      group by idhash_client, tariff
+      order by orders_  desc
+         )
+group by idhash_client
+;
+
+
+-- -- Задание №3 Топ 10 гексагонов из которых уезжают с 7 до 10 утра и в которые едут с 18-00 до 20-00 в сумме по всем дням
+select geoToH3(longitude, latitude, 7) as H3
+     , uniqExact(client_bill_usd)      as views_count
+
+from views
+group by H3
+;
+
+select geoToH3(del_longitude, del_latitude, 7) as H3_del
+     , uniqExact(client_bill_usd)              as bill_usd
+from views
+group by H3_del
+;
