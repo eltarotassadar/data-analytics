@@ -48,3 +48,28 @@ select geoToH3(del_longitude, del_latitude, 7) as H3_del
 from views
 group by H3_del
 ;
+
+-- Задание №3 Топ 10 гексагонов из которых уезжают с 7 до 10 утра и в которые едут с 18-00 до 20-00 в сумме по всем дням
+
+select H3
+     , count(H3) as orders_count
+
+from (select multiIf((toHour(cc_dttm) >= 7) and (toHour(cc_dttm) <= 9),
+                     geoToH3(longitude, latitude, 7) as H3_posadka, -- тут, наверное, уйдут заказы, сделанные ровно в 10
+                     (toHour(finish_dttm) >= 18) and (toHour(finish_dttm) <= 19),
+                     geoToH3(del_longitude, del_latitude, 7) as H3_finish, -- и ровно в 20 (не придумал, как реализовать)
+                     null) as H3
+
+      from orders
+               any
+               join views v on orders.idhash_order = v.idhash_order
+         )
+group by H3
+order by orders_count DESC
+limit 10
+;
+-- в конце подумал, а вот о каком топе идет речь? черт. эээ... в общем нужен такой запрос, который, как бы, спрашивает: этот сгруппированый гексагон до группировки
+-- в большем количестве был представлен с часами от 7 до 9 или с часами от 18 до 19? и выводить что то типо 1 или 0.. я, если честно, не догадываюсь, Сергей.
+-- реальные задачи очень сложны и интересны! :)
+
+-- Задание №4
